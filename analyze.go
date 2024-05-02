@@ -25,9 +25,14 @@ func checkYAML(yamlString string, pipelineStats *PipelineStats) string {
 
 		if strings.Contains(line, "snyk test") && !strings.Contains(line, "#") {
 			debugInfo += "\n- Snyk SCA scan command is present"
-			foundSnykTask = true
 
 			pipelineStats.SnykScansCli += 1
+		}
+
+		if strings.Contains(line, "snyk container test") && !strings.Contains(line, "#") {
+			debugInfo += "\n- Snyk container test command is present"
+
+			pipelineStats.SnykContainerTasks += 1
 		}
 
 		if strings.Contains(line, "FortifyScanCentralSAST") && !strings.Contains(line, "#") {
@@ -82,8 +87,8 @@ func checkYAML(yamlString string, pipelineStats *PipelineStats) string {
 }
 
 func checkTimeline(buildId int, pipelineStats *PipelineStats, projectName string) string {
-	var username string = os.Getenv("USER")
-	var passwd string = os.Getenv("PASS")
+	username := os.Getenv("USER")
+	passwd := os.Getenv("PASS")
 
 	// Declared an empty interface
 	var tasks map[string]interface{}

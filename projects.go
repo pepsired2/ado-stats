@@ -1,46 +1,45 @@
 package main
 
-import "time"
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+)
 
-// Project represents the JSON data structure
-type Project struct {
-	ID             string    `json:"id"`
-	Name           string    `json:"name"`
-	Description    string    `json:"description"`
-	URL            string    `json:"url"`
-	State          string    `json:"state"`
-	Revision       int       `json:"revision"`
-	Visibility     string    `json:"visibility"`
-	LastUpdateTime time.Time `json:"lastUpdateTime"`
-}
+func getProjects() (ProjectsResponse, error) {
+	username := os.Getenv("USER")
+	passwd := os.Getenv("PASS")
+	client := &http.Client{}
+	url := "https://dev.azure.com/PepsiCoIT/_apis/projects?api-version=7.2-preview"
 
-// ProjectsResponse represents the JSON response containing multiple projects
-type ProjectsResponse struct {
-	Count int       `json:"count"`
-	Value []Project `json:"value"`
-}
+	req, err := http.NewRequest("GET", url, nil)
 
-type PipelinesYaml struct {
-	YamlString string `json:"finalYaml"`
-}
+	if err != nil {
+		return ProjectsResponse{}, err
+	}
 
-type Pipeline struct {
-	Links struct {
-		Self struct {
-			Href string `json:"href"`
-		} `json:"self"`
-		Web struct {
-			Href string `json:"href"`
-		} `json:"web"`
-	} `json:"_links"`
-	URL      string `json:"url"`
-	ID       int    `json:"id"`
-	Revision int    `json:"revision"`
-	Name     string `json:"name"`
-	Folder   string `json:"folder"`
-}
+	req.SetBasicAuth(username, passwd)
 
-type PipelineResponse struct {
-	Count int        `json:"count"`
-	Value []Pipeline `json:"value"`
+	resp, err := client.Do(req)
+	if err != nil || resp.StatusCode != 200 {
+		fmt.Println("Error getting projects: ", resp.Status)
+		return ProjectsResponse{}, err
+	}
+
+	bodyText, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return ProjectsResponse{}, err
+	}
+
+	var response ProjectsResponse
+
+	err = json.Unmarshal(bodyText, &response)
+	if err != nil {
+		fmt.Println("Error unmarshalling projects: ", err)
+		return ProjectsResponse{}, err
+	}
+	return response, nil
 }
