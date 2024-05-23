@@ -12,7 +12,6 @@ import (
 func getBuilds(projectName string, pipelinestats *PipelineStats) error {
 	username := os.Getenv("USER")
 	passwd := os.Getenv("PASS")
-
 	// Declare an empty interface
 	var builds map[string]interface{}
 	client := &http.Client{}

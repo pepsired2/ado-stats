@@ -17,7 +17,7 @@ import (
 func main() {
 
 	err := godotenv.Load()
-	scanType := "pipeline"
+	scanType := "devs"
 
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -40,6 +40,7 @@ func main() {
 	art = strings.ReplaceAll(art, "\t", "    ")
 	fmt.Println(art)
 
+	fmt.Println("Scanning for ", scanType)
 	if err := run(scanType); err != nil {
 		fmt.Println(err)
 	}
