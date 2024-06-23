@@ -87,7 +87,7 @@ func getDevs(projectName string, repoId string, devsSet map[string]string) error
 	// Declare an empty interface
 	var commits map[string]interface{}
 	client := &http.Client{}
-	url := "https://dev.azure.com/PepsiCoIT/" + projectName + "/_apis/git/repositories/" + repoId + "/commits?searchCriteria.fromDate=04/20/2024 12:00:00 AM&api-version=7.2-preview.2"
+	url := "https://dev.azure.com/PepsiCoIT/" + projectName + "/_apis/git/repositories/" + repoId + "/commits?searchCriteria.fromDate=04/27/2024 12:00:00 AM&api-version=7.2-preview.2"
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -135,7 +135,7 @@ func getDevs(projectName string, repoId string, devsSet map[string]string) error
 	skip := 100
 	for int(commits["count"].(float64)) == 100 {
 		fmt.Println("******Getting more commits******")
-		url := "https://dev.azure.com/PepsiCoIT/" + projectName + "/_apis/git/repositories/" + repoId + "/commits?searchCriteria.$skip=" + strconv.Itoa(skip) + "&searchCriteria.fromDate=04/20/2024 12:00:00 AM&api-version=7.2-preview.2"
+		url := "https://dev.azure.com/PepsiCoIT/" + projectName + "/_apis/git/repositories/" + repoId + "/commits?searchCriteria.$skip=" + strconv.Itoa(skip) + "&searchCriteria.fromDate=04/27/2024 12:00:00 AM&api-version=7.2-preview.2"
 		req, err := http.NewRequest("GET", url, nil)
 
 		if err != nil {
