@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 )
 
 func run(scanType string) error {
@@ -21,7 +22,8 @@ func run(scanType string) error {
 	pipelineStats := PipelineStats{}
 
 	// iterate over all the projects
-	devsSet := make(map[string]string)
+	devsSet := make(map[string]int)
+	repoSet := make(map[string]int)
 	for i, project := range projects.Value {
 		fmt.Printf("Project %d:\n", i+1)
 		fmt.Printf("  Name: %s\n", project.Name)
@@ -34,7 +36,7 @@ func run(scanType string) error {
 				return err
 			}
 		} else if scanType == "devs" {
-			err := getActiveDevs(project.Name, devsSet)
+			err := getActiveDevs(project.Name, devsSet, repoSet)
 			if err != nil {
 				fmt.Println(err)
 				return err
@@ -46,32 +48,34 @@ func run(scanType string) error {
 		fmt.Println("	Total number of devs: ", len(devsSet))
 	}
 
-	writeToaFile(devsSet)
+	if len(devsSet) != 0 {
+		writeToFile(devsSet, "dev")
+	}
+
+	if len(repoSet) != 0 {
+		writeToFile(repoSet, "email")
+	}
+
 	printStats(pipelineStats)
 
 	return nil
 }
 
-func writeToaFile(devsSet map[string]string) {
-	// Create a file to write the email addresses
-	file, err := os.Create("emails.txt")
+func writeToFile(set map[string]int, fileName string) {
+	file, err := os.Create(fileName)
 	if err != nil {
 		log.Fatalf("Failed to create file: %v", err)
 	}
 	defer file.Close()
 
-	// Create a buffered writer for efficient writing
 	writer := bufio.NewWriter(file)
 
-	// Write each email address to the file
-	for email, url := range devsSet {
-		_, err := writer.WriteString(email + " - " + url + "\n")
+	for k, v := range set {
+		_, err := writer.WriteString(k + " - " + strconv.Itoa(v) + "\n")
 		if err != nil {
 			log.Fatalf("Failed to write to file: %v", err)
 		}
 	}
-
-	// Flush the buffer to ensure all data is written
 	if err := writer.Flush(); err != nil {
 		log.Fatalf("Failed to flush buffer: %v", err)
 	}
